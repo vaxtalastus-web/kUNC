@@ -170,7 +170,7 @@ local function check_request(list)
 			print("missing/not working function " .. name)
 		else
 			local ok, res = simple_pcall(fn, {
-				Url = "https://raw.githubusercontent.com/vaxtalastus-web/kUNC/refs/heads/main/UNCCheckEnv.lua",
+				Url = "https://raw.githubusercontent.com/vaxtalastus-web/kUNC/refs/heads/main/kUNCCheckEnv.lua",
 				Method = "GET"
 			})
 			if not ok then
@@ -477,3 +477,4 @@ check_hookmetamethod(hookmetamethod_variations)
 print("\n--- Window & Identity Variations ---")
 check_misc(window_variations)
 check_misc(identity_variations)
+
