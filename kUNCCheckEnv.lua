@@ -127,7 +127,7 @@ local identity_variations = {
 	"getthreadidentity"
 }
 local function safe_call(fn, ...)
-	if type(fn) ~= "function" then
+	if (typeof or type)(fn) ~= "function" then
 		return false, nil
 	end;
 	local ok, a, b, c, d = pcall(fn, ...)
@@ -142,7 +142,7 @@ local function safe_call(fn, ...)
 	}
 end;
 local function simple_pcall(fn, ...)
-	if type(fn) ~= "function" then
+	if (typeof or type)(fn) ~= "function" then
 		return false, nil
 	end;
 	local ok, res = pcall(fn, ...)
@@ -160,13 +160,13 @@ local function check_request(list)
 		local fn;
 		if name == "http.request" then
 			local http_table = rawget((getgenv or getfenv)(), "http")
-			if type(http_table) == "table" then
+			if (typeof or type)(http_table) == "table" then
 				fn = rawget(http_table, "request")
 			end
 		else
 			fn = (getgenv or getfenv)()[name]
 		end;
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
 			local ok, res = simple_pcall(fn, {
@@ -185,11 +185,11 @@ end;
 local function check_identify_executor(list)
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
 			local ok, res = simple_pcall(fn)
-			if not ok or type(res) ~= "string" then
+			if not ok or (typeof or type)(res) ~= "string" then
 				print("not working function " .. name)
 			else
 				print("working function " .. name .. " -> " .. tostring(res))
@@ -200,11 +200,11 @@ end;
 local function check_gethui(list)
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
 			local ok, res = simple_pcall(fn)
-			if not ok or type(res) ~= "table" then
+			if not ok or (typeof or type)(res) ~= "table" then
 				print("not working function " .. name)
 			else
 				local ok2 = pcall(function()
@@ -223,13 +223,13 @@ local function check_clipboard(list)
 	local test_string = "test_clipboard_content"
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			local is_get = name:match("^get") or name:match("^to")
 			if is_get then
 				local ok, res = simple_pcall(fn)
-				if ok and type(res) == "string" then
+				if ok and (typeof or type)(res) == "string" then
 					print("working function " .. name)
 				else
 					print("not working function " .. name)
@@ -248,7 +248,7 @@ end;
 local function check_env_getters(list)
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
 			local ok, res;
@@ -257,7 +257,7 @@ local function check_env_getters(list)
 			else
 				ok, res = simple_pcall(fn)
 			end;
-			if not ok or type(res) ~= "table" then
+			if not ok or (typeof or type)(res) ~= "table" then
 				print("not working function " .. name)
 			else
 				print("working function " .. name)
@@ -268,12 +268,12 @@ end;
 local function check_fps(list)
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			if name:match("^get") then
 				local ok, res = simple_pcall(fn)
-				if ok and type(res) == "number" then
+				if ok and (typeof or type)(res) == "number" then
 					print("working function " .. name)
 				else
 					print("not working function " .. name)
@@ -294,7 +294,7 @@ local function check_fileio(list)
 	local test_content = "print(\"Hello, world!\")"
 	for _, name in next, list do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			if name:match("write") or name:match("append") then
@@ -329,7 +329,7 @@ local function check_folder(list)
 	local test_path = "./"
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			if name:match("make") or name:match("del") then
@@ -344,14 +344,14 @@ local function check_folder(list)
 				if not ok then
 					ok, data = pcall(fn)
 				end
-				if ok and type(data) == "table" then
+				if ok and (typeof or type)(data) == "table" then
 					print("working function " .. name)
 				else
 					print("not working function " .. name)
 				end
 			elseif name:match("is") then
 				local ok, data = pcall(fn, test_path)
-				if ok and type(data) == "boolean" then
+				if ok and (typeof or type)(data) == "boolean" then
 					print("working function " .. name)
 				else
 					print("not working function " .. name)
@@ -367,12 +367,12 @@ local function check_hooks(list)
 	end;
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			if name:match("isfunctionhooked") then
 				local ok, res = simple_pcall(fn, dummy)
-				if ok and type(res) == "boolean" then
+				if ok and (typeof or type)(res) == "boolean" then
 					print("working function " .. name)
 				else
 					print("not working function " .. name)
@@ -396,7 +396,7 @@ end;
 local function check_hookmetamethod(list)
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
-		if type(fn) ~= "function" then
+		if (typeof or type)(fn) ~= "function" then
 			print("missing function " .. name)
 		else
 			local worked = false;
@@ -430,7 +430,7 @@ local function check_hookmetamethod(list)
 				end;
 				local restored = false;
 				if ok then
-					if type(old) == "function" then
+					if (typeof or type)(old) == "function" then
 						pcall(fn, t, "__index", old)
 						if t.hi == 67 then
 							restored = true
@@ -477,4 +477,3 @@ check_hookmetamethod(hookmetamethod_variations)
 print("\n--- Window & Identity Variations ---")
 check_misc(window_variations)
 check_misc(identity_variations)
-
