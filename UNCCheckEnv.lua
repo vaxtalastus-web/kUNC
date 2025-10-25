@@ -69,10 +69,10 @@ local env_variations = {
 	"get_registry"
 }
 local fileio_variations = {
-	"readfile",
-	"read_file",
 	"writefile",
 	"write_file",
+    "readfile",
+	"read_file",
 	"appendfile",
 	"append_file",
 	"dofile",
@@ -292,7 +292,7 @@ end;
 local function check_fileio(list)
 	local test_filename = "testing_script_functionality.txt"
 	local test_content = "print(\"Hello, world!\")"
-	for _, name in pairs(list) do
+	for _, name in next, list do
 		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
@@ -326,7 +326,7 @@ local function check_fileio(list)
 end;
 local function check_folder(list)
 	local test_folder_name = "testing_folder_functionality"
-	local test_path = "/"
+	local test_path = "./"
 	for _, name in pairs(list) do
 		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
@@ -341,6 +341,9 @@ local function check_folder(list)
 				end
 			elseif name:match("list") then
 				local ok, data = pcall(fn, test_path)
+				if not ok then
+					ok, data = pcall(fn)
+				end
 				if ok and type(data) == "table" then
 					print("working function " .. name)
 				else
@@ -358,7 +361,7 @@ local function check_folder(list)
 			end
 		end
 	end
-end;
+end
 local function check_hooks(list)
 	local dummy = function()
 	end;
