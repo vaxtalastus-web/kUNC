@@ -3,7 +3,8 @@ local request_variations = {
 	"http_request",
 	"httprequest",
 	"bunni_request",
-	"httpreq"
+	"httpreq",
+	"http.request"
 }
 local identifyexecutor_variations = {
 	"identifyexecutor",
@@ -125,42 +126,46 @@ local identity_variations = {
 	"setthreadidentity",
 	"getthreadidentity"
 }
-
 local function safe_call(fn, ...)
 	if type(fn) ~= "function" then
 		return false, nil
-	end
+	end;
 	local ok, a, b, c, d = pcall(fn, ...)
 	if not ok then
 		return false, nil
-	end
+	end;
 	return true, {
 		a,
 		b,
 		c,
 		d
 	}
-end
-
+end;
 local function simple_pcall(fn, ...)
 	if type(fn) ~= "function" then
 		return false, nil
-	end
+	end;
 	local ok, res = pcall(fn, ...)
 	return ok, res
-end
-
+end;
 local function report(name, ok)
 	if ok then
 		print("working function " .. name)
 	else
 		print("missing/not working function " .. name)
 	end
-end
-
+end;
 local function check_request(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn;
+		if name == "http.request" then
+			local http_table = rawget(getfenv(), "http")
+			if type(http_table) == "table" then
+				fn = rawget(http_table, "request")
+			end
+		else
+			fn = getfenv()[name]
+		end;
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
@@ -175,8 +180,7 @@ local function check_request(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_identify_executor(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
@@ -191,8 +195,7 @@ local function check_identify_executor(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_gethui(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
@@ -214,8 +217,7 @@ local function check_gethui(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_clipboard(list)
 	local test_string = "test_clipboard_content"
 	for _, name in pairs(list) do
@@ -241,20 +243,19 @@ local function check_clipboard(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_env_getters(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
-			local ok, res
+			local ok, res;
 			if name == "get_senv" or name == "getsenv" then
 				ok, res = simple_pcall(fn, script)
 			else
 				ok, res = simple_pcall(fn)
-			end
+			end;
 			if not ok or type(res) ~= "table" then
 				print("not working function " .. name)
 			else
@@ -262,8 +263,7 @@ local function check_env_getters(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_fps(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
@@ -287,8 +287,7 @@ local function check_fps(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_fileio(list)
 	local test_filename = "testing_script_functionality.txt"
 	local test_content = "print(\"Hello, world!\")"
@@ -323,8 +322,7 @@ local function check_fileio(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_folder(list)
 	local test_folder_name = "testing_folder_functionality"
 	local test_path = "/"
@@ -359,11 +357,10 @@ local function check_folder(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_hooks(list)
 	local dummy = function()
-	end
+	end;
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
 		if type(fn) ~= "function" then
@@ -381,8 +378,7 @@ local function check_hooks(list)
 			end
 		end
 	end
-end
-
+end;
 local function check_misc(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
@@ -392,20 +388,20 @@ local function check_misc(list)
 			print("missing function " .. name)
 		end
 	end
-end
+end;
 local function check_hookmetamethod(list)
 	for _, name in pairs(list) do
 		local fn = getfenv()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
-			local worked = false
+			local worked = false;
 			local t = {}
 			local orig_meta = {
 				__index = function(_, k)
 					if k == "hi" then
 						return 67
-					end
+					end;
 					return nil
 				end
 			}
@@ -413,18 +409,22 @@ local function check_hookmetamethod(list)
 			if t.hi ~= 67 then
 				print("metatable setup failed for " .. name)
 			else
-				local ok, old = pcall(fn, t, "__index", function(self, k) if k == "hi" then return 0 end end)
+				local ok, old = pcall(fn, t, "__index", function(self, k)
+					if k == "hi" then
+						return 0
+					end
+				end)
 				if ok then
 					if t.hi == 0 then
 						worked = true
 					end
-				end
+				end;
 				if worked then
 					print("working function " .. name .. " -> returned old: " .. tostring(old))
 				else
 					print("not working function " .. name)
-				end
-				local restored = false
+				end;
+				local restored = false;
 				if ok then
 					if type(old) == "function" then
 						pcall(fn, t, "__index", old)
@@ -442,14 +442,14 @@ local function check_hookmetamethod(list)
 					if t.hi == 67 then
 						restored = true
 					end
-				end
+				end;
 				if not restored then
 					pcall(setmetatable, t, orig_meta)
 				end
 			end
 		end
 	end
-end
+end;
 print("\n--- Request Function Checks ---")
 check_request(request_variations)
 print("\n--- Executor Identify Checks ---")
