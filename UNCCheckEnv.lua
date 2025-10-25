@@ -159,18 +159,18 @@ local function check_request(list)
 	for _, name in pairs(list) do
 		local fn;
 		if name == "http.request" then
-			local http_table = rawget(getfenv(), "http")
+			local http_table = rawget((getgenv or getfenv)(), "http")
 			if type(http_table) == "table" then
 				fn = rawget(http_table, "request")
 			end
 		else
-			fn = getfenv()[name]
+			fn = (getgenv or getfenv)()[name]
 		end;
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
 			local ok, res = simple_pcall(fn, {
-				Url = "https://www.google.com/",
+				Url = "https://raw.githubusercontent.com/vaxtalastus-web/kUNC/refs/heads/main/UNCCheckEnv.lua",
 				Method = "GET"
 			})
 			if not ok then
@@ -179,11 +179,12 @@ local function check_request(list)
 				print("working function " .. name)
 			end
 		end
+		task.wait(0.5)
 	end
 end;
 local function check_identify_executor(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
@@ -198,7 +199,7 @@ local function check_identify_executor(list)
 end;
 local function check_gethui(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
@@ -221,7 +222,7 @@ end;
 local function check_clipboard(list)
 	local test_string = "test_clipboard_content"
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
@@ -246,7 +247,7 @@ local function check_clipboard(list)
 end;
 local function check_env_getters(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing/not working function " .. name)
 		else
@@ -266,7 +267,7 @@ local function check_env_getters(list)
 end;
 local function check_fps(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
@@ -292,7 +293,7 @@ local function check_fileio(list)
 	local test_filename = "testing_script_functionality.txt"
 	local test_content = "print(\"Hello, world!\")"
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
@@ -327,7 +328,7 @@ local function check_folder(list)
 	local test_folder_name = "testing_folder_functionality"
 	local test_path = "/"
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
@@ -362,7 +363,7 @@ local function check_hooks(list)
 	local dummy = function()
 	end;
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
@@ -381,7 +382,7 @@ local function check_hooks(list)
 end;
 local function check_misc(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if fn then
 			print("working function " .. name)
 		else
@@ -391,7 +392,7 @@ local function check_misc(list)
 end;
 local function check_hookmetamethod(list)
 	for _, name in pairs(list) do
-		local fn = getfenv()[name]
+		local fn = (getgenv or getfenv)()[name]
 		if type(fn) ~= "function" then
 			print("missing function " .. name)
 		else
